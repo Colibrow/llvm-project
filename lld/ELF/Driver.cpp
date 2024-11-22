@@ -1255,6 +1255,24 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args) {
       ctx.arg.bsymbolic = BsymbolicKind::All;
   }
   ctx.arg.callGraphProfileSort = getCGProfileSortKind(ctx, args);
+  ctx.arg.irpgoProfileSortProfilePath = args.getLastArgValue(OPT_irpgo_profile_sort);
+  ctx.arg.compressionSortStartupFunctions = args.hasFlag(OPT_compression_sort_startup_functions, OPT_no_compression_sort_startup_functions, false);
+  if (auto *arg = args.getLastArg(OPT_compression_sort)) {
+    StringRef compressionSortStr = arg->getValue();
+    if (compressionSortStr == "function") {
+      ctx.arg.functionOrderForCompression = true;
+    } else if (compressionSortStr == "data") {
+      ctx.arg.dataOrderForCompression = true;
+    } else if (compressionSortStr == "both") {
+      ctx.arg.functionOrderForCompression = true;
+      ctx.arg.dataOrderForCompression = true;
+    } else if (compressionSortStr != "none") {
+       ErrAlways(ctx) << arg->getSpelling() << ": invalid argument '"
+                     << arg->getValue()
+                     << "', only 'function' or 'data' or 'both' is supported";
+    }
+  }
+  ctx.arg.verboseBpSectionOrderer = args.hasArg(OPT_verbose_bp_section_orderer);
   ctx.arg.checkSections =
       args.hasFlag(OPT_check_sections, OPT_no_check_sections, true);
   ctx.arg.chroot = args.getLastArgValue(OPT_chroot);

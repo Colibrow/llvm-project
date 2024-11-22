@@ -264,6 +264,11 @@ struct Config {
   bool armBe8 = false;
   BsymbolicKind bsymbolic = BsymbolicKind::None;
   CGProfileSortKind callGraphProfileSort;
+  llvm::StringRef irpgoProfileSortProfilePath;
+  bool compressionSortStartupFunctions = false;
+  bool functionOrderForCompression = false;
+  bool dataOrderForCompression = false;
+  bool verboseBpSectionOrderer = false;
   bool checkSections;
   bool checkDynamicRelocs;
   std::optional<llvm::DebugCompressionType> compressDebugSections;

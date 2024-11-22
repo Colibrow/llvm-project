@@ -56,6 +56,7 @@ add_lld_library(lldELF
   SymbolTable.cpp
   Symbols.cpp
   SyntheticSections.cpp
+  BPSectionOrderer.cpp
   Target.cpp
   Thunks.cpp
   Writer.cpp

@@ -31,6 +31,7 @@ add_lld_library(lldCommon
   Filesystem.cpp
   Memory.cpp
   Reproduce.cpp
+  SectionOrderer.cpp
   Strings.cpp
   TargetOptionsCommandFlags.cpp
   Timer.cpp

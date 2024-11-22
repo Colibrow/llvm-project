@@ -18,6 +18,7 @@
 #include "Relocations.h"
 #include "SymbolTable.h"
 #include "Symbols.h"
+#include "BPSectionOrderer.h"
 #include "SyntheticSections.h"
 #include "Target.h"
 #include "lld/Common/Arrays.h"
@@ -1078,8 +1079,18 @@ static void maybeShuffle(Ctx &ctx,
 // Builds section order for handling --symbol-ordering-file.
 static DenseMap<const InputSectionBase *, int> buildSectionOrder(Ctx &ctx) {
   DenseMap<const InputSectionBase *, int> sectionOrder;
+  if (!ctx.arg.irpgoProfileSortProfilePath.empty() ||
+      ctx.arg.compressionSortStartupFunctions ||
+      ctx.arg.dataOrderForCompression) {
+    TimeTraceScope timeScope("Balanced Partitioning Section Orderer");
+    sectionOrder = runBalancedPartitioning(
+        ctx, ctx.arg.irpgoProfileSortProfilePath,
+        ctx.arg.compressionSortStartupFunctions,
+        ctx.arg.functionOrderForCompression, ctx.arg.dataOrderForCompression,
+        ctx.arg.verboseBpSectionOrderer);
+  }
   // Use the rarely used option --call-graph-ordering-file to sort sections.
-  if (!ctx.arg.callGraphProfile.empty())
+  else if (!ctx.arg.callGraphProfile.empty())
     return computeCallGraphProfileOrder(ctx);
 
   if (ctx.arg.symbolOrderingFile.empty())
