@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -17,11 +14,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Clang
-      uses: llvm/llvm-project@main
+    - name: Setup Clang
+      uses: egor-tensin/setup-clang@v1
       with:
-        clang-version: 17
-
+        version: 19
+        
+    - name: Setup Ninja
+      uses: ashutoshvarma/setup-ninja@v1.1
+      with:
+        version: 1.10.0
+        
     - name: Build LLD
       run: |
         cmake -S . -B build \
