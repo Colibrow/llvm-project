@@ -1,0 +1,58 @@
+name: Build and Rebuild LLD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-lld:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Clang
+      uses: llvm/llvm-project@main
+      with:
+        clang-version: 17
+
+    - name: Build LLD
+      run: |
+        cmake -S . -B build \
+          -D 'LLVM_ENABLE_PROJECTS=lld' \
+          -G Ninja \
+          -D CMAKE_BUILD_TYPE=Release \
+          -D LLVM_ENABLE_ASSERTIONS=ON \
+          -D LLVM_BUILD_EXAMPLES=OFF \
+          -D COMPILER_RT_BUILD_LIBFUZZER=OFF \
+          -D CMAKE_CXX_FLAGS="-g3" \
+          -D CMAKE_C_FLAGS="-g3" \
+          -D LLVM_CCACHE_BUILD=OFF \
+          -D CMAKE_CXX_COMPILER=clang++ \
+          -D CMAKE_C_COMPILER=clang
+        ninja lld
+        ls -sail build/lld
+
+    - name: Rebuild Main Branch LLD
+      run: |
+        cmake -S . -B rebuild \
+          -D 'LLVM_ENABLE_PROJECTS=lld' \
+          -G Ninja \
+          -D CMAKE_BUILD_TYPE=Release \
+          -D LLVM_ENABLE_ASSERTIONS=ON \
+          -D LLVM_BUILD_EXAMPLES=OFF \
+          -D COMPILER_RT_BUILD_LIBFUZZER=OFF \
+          -D CMAKE_SHARED_LINKER_FLAGS="-fuse-ld=$(pwd)/build/bin/ld.lld" \
+          -D CMAKE_CXX_FLAGS="-g3" \
+          -D CMAKE_C_FLAGS="-g3" \
+          -D LLVM_CCACHE_BUILD=OFF \
+          -D CMAKE_CXX_COMPILER=clang++ \
+          -D CMAKE_C_COMPILER=clang
+        ninja lld
+        ls -sail build/lld
